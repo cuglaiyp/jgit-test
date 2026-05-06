@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sandbox-server
+  namespace: sandbox-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sandbox-server
+  template:
+    metadata:
+      labels:
+        app: sandbox-server
+    spec:
+      containers:
+      - name: server
+        image: opensandbox-server:latest   # 请替换为实际可用镜像
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: config
+          mountPath: /root/.sandbox.toml
+          subPath: sandbox.toml
+      volumes:
+      - name: config
+        configMap:
+          name: sandbox-server-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sandbox-server
+  namespace: sandbox-system
+spec:
+  selector:
+    app: sandbox-server
+  ports:
+  - port: 8000
+    targetPort: 8000
